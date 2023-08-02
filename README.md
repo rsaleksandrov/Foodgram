@@ -15,7 +15,7 @@ sudo apt install docker.io docker-compose
 - Для windows устанавливаем [Docker-desktop](https://www.docker.com/products/docker-desktop/)
 
 ### Установка исходных кодов и настройка окружения docker-compose
-1. Клонируем (или скачиваем и распаковываем) код из [репозитория](https://github.com/teamofroman/foodgram-project-react)
+1. Клонируем (или скачиваем и распаковываем) код из [репозитория](https://github.com/rsaleksandrov/Foodgram/)
 2. Переходим в папку `infra`
 3. Создаем файл `.env` и прописываем в него:
 ```python
@@ -34,9 +34,6 @@ SECRET_KEY=<секретный ключ для работы Django>
 sudo docker-compose up --build
 ```
 Ключ `--build` можно указывать только при первом запуске проекта и при обновлении backend-а
-
-### API доступа к проекту
-Описание API и точек доступа - [здесь](http://rsateam.zapto.org/api/docs/)
 
 ## Стек технологий и программые пакеты
 
