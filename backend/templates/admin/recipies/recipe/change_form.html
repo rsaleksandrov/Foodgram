@@ -1,0 +1,11 @@
+{% extends 'admin/change_form.html' %}
+
+{% block content %}
+    {% if original.favorites.count == 0 %}
+    <h2>Рецепт еще не добавляли в избранное</h2>
+    {% else %}
+    <h2>Рецепт был добавлен в избранное {{ original.favorites.count }} раз(а)</h2>
+    {% endif %}
+    
+    {{ block.super }}
+{% endblock %}

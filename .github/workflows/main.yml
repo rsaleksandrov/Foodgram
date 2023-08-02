@@ -1,0 +1,99 @@
+name: Foodgram
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  tests:
+    name: Testing backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set-up python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10.11
+      
+      - name: Install dependies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
+          pip install -r backend/requirements.txt
+      
+      - name: Test modules
+        run: python -m flake8 backend
+  
+  build_image_and_push_to_dockerhub:
+    if: github.ref == 'refs/heads/master'
+    name: Build docker image and push to Docker Hub
+    runs-on: ubuntu-latest
+    needs: tests
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        
+      - name: Setup docker buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+            
+      - name: Build image and push it
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backend
+          push: true
+          tags: rsateam/foodgram_backend:latest
+        
+  deploy_to_server:
+    name: Deploy project to server
+    runs-on: ubuntu-latest
+    needs: build_image_and_push_to_dockerhub
+      
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PHRASE }}
+          script: |
+            cd /develop/foodgram/infra
+            sudo docker-compose stop
+            sudo docker-compose rm -f backend
+            sudo docker pull rsateam/foodgram_backend:latest
+            echo DB_ENGINE=${{ secrets.DB_ENGINE }} > .env
+            echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+            echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+            echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+            echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+            echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+            echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
+            echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
+            sudo docker-compose up -d
+            sudo docker-compose exec -T backend python manage.py migrate
+            sudo docker-compose exec -T backend python manage.py collectstatic --no-input
+        
+  # send_to_telegram_workflow_status:
+  #   name: Send to telegram github workflow status
+  #   runs-on: ubuntu-latest
+  #   needs: deploy_to_server
+      
+  #   steps:
+  #     - name: Send message to telegram
+  #       uses: appleboy/telegram-action@master
+  #       with:
+  #         to: ${{ secrets.TELEGRAM_TO }}
+  #         token: ${{ secrets.TELEGRAM_TOKEN }}
+  #         message: ${{ github.workflow }} успешно выполнен!
