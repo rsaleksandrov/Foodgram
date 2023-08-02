@@ -1,12 +1,8 @@
 # Проект FOOD GRAMM
 
-![FOODGRAMM](https://github.com/teamofroman/foodgram-project-react/actions/workflows/main.yml/badge.svg)
-![DEVELOP](https://github.com/teamofroman/foodgram-project-react/actions/workflows/develop_tests.yml/badge.svg)
-
 ## Описание
 На этом сервисе пользователи смогут публиковать рецепты, подписываться на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное», а перед походом в магазин скачивать сводный список продуктов, необходимых для приготовления одного или нескольких выбранных блюд.
 
-Сайт для тестирования (может быть недоступен :) ) - [rsateam.zapto.org](http://rsateam.zapto.org/)
 
 ## Разверытвание проекта на сервере
 
